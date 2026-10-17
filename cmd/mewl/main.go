@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"mewl/parser"
+	"mewl/lexer"
 	"os"
 	"strings"
 )
@@ -26,8 +26,7 @@ func repl() int {
 		if tline == "q" {
 			break
 		}
-
-		parser.MwlTokenize(tline)
+		fmt.Println(lexer.NewDummyToken())
 
 	}
 	return 0
