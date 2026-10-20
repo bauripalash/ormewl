@@ -99,7 +99,7 @@ func (ml *MwlLexer) addToken(ttype MwlTokenType) {
 	tok := MwlToken{
 		TokType: ttype,
 		Lexeme:  ml.Source[ml.start:ml.cur],
-		Pos:     ml.cur,
+		Pos:     ml.start,
 		Len:     ml.cur - ml.start,
 	}
 
@@ -122,9 +122,11 @@ func (ml *MwlLexer) scanToken() {
 
 	switch ch {
 	case '[':
+		ml.addToken(MwlTokStarter)
 	case '(':
 		ml.addToken(MwlTokStarter)
 	case ']':
+		ml.addToken(MwlTokEnder)
 	case ')':
 		ml.addToken(MwlTokEnder)
 	case '+':
