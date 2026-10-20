@@ -38,6 +38,9 @@ func (ml *MwlLexer) npeek(n int) byte {
 	if ml.atEnd() || n < 0 { //todo: safety
 		return 0
 	}
+	if ml.cur+n >= ml.slen {
+		return 0
+	}
 	return ml.Source[ml.cur+n]
 }
 
@@ -47,6 +50,10 @@ func (ml *MwlLexer) peek() byte {
 
 func (ml *MwlLexer) peekNext() byte {
 	return ml.npeek(1)
+}
+
+func (ml *MwlLexer) peekNextNext() byte {
+	return ml.npeek(2)
 }
 
 func (ml *MwlLexer) match(a byte) bool {
@@ -99,14 +106,45 @@ func (ml *MwlLexer) addToken(ttype MwlTokenType) {
 	ml.Tokens = append(ml.Tokens, tok)
 }
 
+func (ml *MwlLexer) scanRawMews() {
+	ml.advance()
+	ml.advance()
+	for ml.peek() == 'm' && ml.peekNext() == 'e' && ml.peekNextNext() == 'w' {
+		ml.advance()
+		ml.advance()
+		ml.advance()
+	}
+	ml.addToken(MwlTokNumber)
+}
+
 func (ml *MwlLexer) scanToken() {
 	ch := ml.advance()
 
 	switch ch {
 	case '[':
+	case '(':
 		ml.addToken(MwlTokStarter)
 	case ']':
+	case ')':
 		ml.addToken(MwlTokEnder)
+	case '+':
+		ml.addToken(MwlTokPlus)
+	case '-':
+		ml.addToken(MwlTokMinus)
+	case '/':
+		if ml.match('/') {
+			for ml.peek() != '\n' && !ml.atEnd() {
+				ml.advance()
+			}
+		} else {
+			ml.addToken(MwlTokSlash)
+		}
+	case 'm':
+		if ml.peek() == 'e' && ml.peekNext() == 'w' {
+			ml.scanRawMews()
+		} else {
+			fmt.Printf("Error Token '%c'\n", ch)
+		}
 	case ' ':
 		break
 	case '\t':
@@ -116,6 +154,6 @@ func (ml *MwlLexer) scanToken() {
 	case '\n':
 		ml.line++
 	default:
-		fmt.Printf("Token '%c'", ch)
+		fmt.Printf("Unknown Token '%c'\n", ch)
 	}
 }

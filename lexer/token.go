@@ -12,8 +12,16 @@ const (
 	MwlTokStarter MwlTokenType = iota
 	// Mewl Expression Ender ']'
 	MwlTokEnder
+	// Mewl Token '+'
+	MwlTokPlus
+	// Mewl Token '-'
+	MwlTokMinus
 	// Mewl Number 'mewmewmew...'
 	MwlTokNumber
+	// Mewl Token '*'
+	MwlTokAstr
+	// Mewl Token '/'
+	MwlTokSlash
 	// Mewl End of File 'EOF'
 	MwlTokEOF
 )
@@ -24,12 +32,16 @@ func (tt MwlTokenType) String() string {
 		return "TokStarter"
 	case MwlTokEnder:
 		return "TokEnder"
+	case MwlTokPlus:
+		return "TokPlus"
+	case MwlTokMinus:
+		return "TokMinus"
 	case MwlTokNumber:
 		return "TokNumber"
 	case MwlTokEOF:
 		return "TokEOF"
 	default:
-		return "Unknown"
+		return "TokUnknown"
 	}
 }
 
