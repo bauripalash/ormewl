@@ -40,6 +40,10 @@ type MwlToken struct {
 	TokType MwlTokenType
 	// Actual raw lexeme of the token
 	Lexeme string
+	// Global position
+	Pos int
+	// Lexeme Length
+	Len int
 }
 
 func NewDummyToken() MwlToken {
@@ -50,5 +54,5 @@ func NewDummyToken() MwlToken {
 }
 
 func (t MwlToken) String() string {
-	return fmt.Sprintf("MwlTok[%s|%s]", t.TokType, t.Lexeme)
+	return fmt.Sprintf("MwlToken(%d,%d)(%s|'%s')", t.Pos, t.Len, t.TokType, t.Lexeme)
 }

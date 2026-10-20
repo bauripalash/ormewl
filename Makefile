@@ -5,6 +5,8 @@ BUILD_DIR:=build
 GOCMD:=go
 GOFMT:=gofmt
 
+FILERUN:=a.mwl
+
 .PHONY: all
 all: run
 
@@ -14,9 +16,15 @@ build:
 	@mkdir -p $(BUILD_DIR)
 	@$(GOCMD) build -o $(BUILD_DIR)/$(PROJECT) $(CMD_DIR)/main.go
 
-## run: build and run mewl interpreter
+## run: run the test file
 .PHONY: run
 run: build
+	@./$(BUILD_DIR)/$(PROJECT) $(FILERUN) $(ARGS)
+
+
+## repl: build and run mewl interpreter
+.PHONY: repl
+repl: build
 	@./$(BUILD_DIR)/$(PROJECT) $(ARGS)
 
 ## fmt: format source code

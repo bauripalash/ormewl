@@ -33,7 +33,19 @@ func repl() int {
 }
 
 func runner() int {
-	fmt.Println("Usage: mewl [filename]")
+	filename := os.Args[1]
+	fmt.Printf("Running file : %s\n", filename)
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		fmt.Printf("Failed to read file %s\n", filename)
+		return 1
+	}
+
+	strContent := string(content)
+
+	lx := lexer.NewMewlLexer(strContent)
+	lx.ScanTokens()
+
 	return 0
 }
 
