@@ -4,15 +4,23 @@ import (
 	"fmt"
 )
 
+// Mewl Lexer Object
 type MwlLexer struct {
+	// Raw source code
 	Source string
-	slen   int
-	start  int
-	cur    int
-	line   int
+	// Length of source code string
+	slen int
+	// Start position of current token being read
+	start int
+	// Current position of the current token being read
+	cur int
+	// line number position
+	line int
+	// token output
 	Tokens []MwlToken
 }
 
+// Create new mewl lexer
 func NewMewlLexer(src string) *MwlLexer {
 	return &MwlLexer{
 		Source: src,
@@ -24,16 +32,20 @@ func NewMewlLexer(src string) *MwlLexer {
 	}
 }
 
+// Check if the lexer is at the end of source
 func (ml *MwlLexer) atEnd() bool {
 	return ml.cur >= ml.slen
 }
 
+// Advance the lexer position and return the eaten character
 func (ml *MwlLexer) advance() byte {
 	c := ml.Source[ml.cur]
 	ml.cur++
 	return c
 }
 
+// Peek into the Source string 'n'th postion
+// n = 0 means return the next character
 func (ml *MwlLexer) npeek(n int) byte {
 	if ml.atEnd() || n < 0 { //todo: safety
 		return 0
@@ -44,18 +56,23 @@ func (ml *MwlLexer) npeek(n int) byte {
 	return ml.Source[ml.cur+n]
 }
 
+// Peek into the next character
 func (ml *MwlLexer) peek() byte {
 	return ml.npeek(0)
 }
 
+// Peek into the character after the next character
 func (ml *MwlLexer) peekNext() byte {
 	return ml.npeek(1)
 }
 
+// Peek into two character after the next character
 func (ml *MwlLexer) peekNextNext() byte {
 	return ml.npeek(2)
 }
 
+// If the next character is `a` advance and return true
+// otherwise return false
 func (ml *MwlLexer) match(a byte) bool {
 	if ml.atEnd() {
 		return false
@@ -69,21 +86,7 @@ func (ml *MwlLexer) match(a byte) bool {
 	return true
 }
 
-func (ml *MwlLexer) eatWhitespaces() {
-	for !ml.atEnd() {
-		c := ml.peek()
-		switch c {
-		case ' ', '\t', '\r':
-			ml.advance()
-		case '\n':
-			ml.line++
-			ml.advance()
-		default:
-			return
-		}
-	}
-}
-
+// Run lexer on the Source and fillup the Tokens array
 func (ml *MwlLexer) ScanTokens() {
 	for !ml.atEnd() {
 		ml.start = ml.cur
@@ -106,14 +109,42 @@ func (ml *MwlLexer) addToken(ttype MwlTokenType) {
 	ml.Tokens = append(ml.Tokens, tok)
 }
 
-func (ml *MwlLexer) scanRawMews() {
-	ml.advance()
-	ml.advance()
-	for ml.peek() == 'm' && ml.peekNext() == 'e' && ml.peekNextNext() == 'w' {
+func (ml *MwlLexer) eatMews() {
+	for ml.peek() == 'm' &&
+		ml.peekNext() == 'e' &&
+		ml.peekNextNext() == 'w' {
+
 		ml.advance()
 		ml.advance()
 		ml.advance()
 	}
+}
+
+func (ml *MwlLexer) scanRawMews() {
+	// first 'm' has been eaten
+	ml.advance() // eat 'e'
+	ml.advance() // eat 'w'
+
+	ml.eatMews()
+
+	if ml.peek() == '.' {
+		ml.advance()
+
+		if ml.peek() != 'm' ||
+			ml.peekNext() != 'e' ||
+			ml.peekNextNext() != 'w' {
+
+			fmt.Printf("Invalid mew decimal number\n")
+			return
+		}
+
+		ml.advance()
+		ml.advance()
+		ml.advance()
+
+		ml.eatMews()
+	}
+
 	ml.addToken(MwlTokNumber)
 }
 
